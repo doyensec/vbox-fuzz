@@ -1,0 +1,448 @@
+--- VirtualBox-6.1.30-orig/src/VBox/Devices/Graphics/DevVGA-SVGA3d-glLdr.cpp	2021-11-22 16:16:55.000000000 +0100
++++ VirtualBox-6.1.30/src/VBox/Devices/Graphics/DevVGA-SVGA3d-glLdr.cpp	2022-01-14 13:08:42.249215866 +0100
+@@ -297,6 +297,7 @@
+     GLGETPROC_(wglMakeCurrent, "");
+     GLGETPROC_(wglShareLists, "");
+ #elif defined(RT_OS_LINUX)
++    /*
+     X11GETPROC_(XConfigureWindow);
+     X11GETPROC_(XCloseDisplay);
+     X11GETPROC_(XCreateColormap);
+@@ -325,7 +326,125 @@
+     GLGETPROC_(glXMakeCurrent, "");
+     GLGETPROC_(glXDestroyContext, "");
+     GLGETPROC_(glXDestroyPixmap, "");
++    */
++    // X11GETPROC_(XConfigureWindow);
++    pfn_XConfigureWindow = (int (*)(Display *display, Window w, unsigned value_mask, XWindowChanges *changes)) MyX11GetProcAddress("XConfigureWindow");
++    if (!pfn_XConfigureWindow) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing libX11 symbol");}
++
++    // X11GETPROC_(XCloseDisplay);
++    pfn_XCloseDisplay = (int (*)(Display *display)) MyX11GetProcAddress("XCloseDisplay");
++    if (!pfn_XCloseDisplay) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing libX11 symbol");}
++
++    // X11GETPROC_(XCreateColormap);
++    pfn_XCreateColormap = (Colormap (*)(Display *display, Window w, Visual *visual, int alloc)) MyX11GetProcAddress("XCreateColormap");
++    if (!pfn_XCreateColormap) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing libX11 symbol");}
++
++    // X11GETPROC_(XCreatePixmap);
++    pfn_XCreatePixmap = (Pixmap (*)(Display *display, Drawable d, unsigned int width, unsigned int height, unsigned int depth)) MyX11GetProcAddress("XCreatePixmap");
++    if (!pfn_XCreatePixmap) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing libX11 symbol");}
++
++    // X11GETPROC_(XCreateWindow);
++    pfn_XCreateWindow = (Window (*)(Display *display, Window parent, int x, int y, unsigned int width, unsigned int height,
++              unsigned int border_width, int depth, unsigned int window_class, Visual *visual, unsigned long valuemask, XSetWindowAttributes *attributes)) MyX11GetProcAddress("XCreateWindow");
++    if (!pfn_XCreateWindow) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing libX11 symbol");}
++
++    // X11GETPROC_(XDefaultRootWindow);
++    pfn_XDefaultRootWindow = (Window (*)(Display *display)) MyX11GetProcAddress("XDefaultRootWindow");
++    if (!pfn_XDefaultRootWindow) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing libX11 symbol");}
++
++    // X11GETPROC_(XDestroyWindow);
++    pfn_XDestroyWindow = (int (*)(Display *display, Window w)) MyX11GetProcAddress("XDestroyWindow");
++    if (!pfn_XDestroyWindow) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing libX11 symbol");}
++
++    // X11GETPROC_(XFree);
++    pfn_XFree = (int (*)(void *data)) MyX11GetProcAddress("XFree");
++    if (!pfn_XFree) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing libX11 symbol");}
++
++    // X11GETPROC_(XFreePixmap);
++    pfn_XFreePixmap = (int (*)(Display *display, Pixmap pixmap)) MyX11GetProcAddress("XFreePixmap");
++    if (!pfn_XFreePixmap) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing libX11 symbol");}
++
++    // X11GETPROC_(XInitThreads);
++    pfn_XInitThreads = (Status (*)(void)) MyX11GetProcAddress("XInitThreads");
++    if (!pfn_XInitThreads) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing libX11 symbol");}
++
++    // X11GETPROC_(XNextEvent);
++    pfn_XNextEvent = (int (*)(Display *display, XEvent *event_return)) MyX11GetProcAddress("XNextEvent");
++    if (!pfn_XNextEvent) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing libX11 symbol");}
++
++    // X11GETPROC_(XOpenDisplay);
++    pfn_XOpenDisplay = (Display *(*)(char *display_name)) MyX11GetProcAddress("XOpenDisplay");
++    if (!pfn_XOpenDisplay) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing libX11 symbol");}
++
++    // X11GETPROC_(XPending);
++    pfn_XPending = (int (*)(Display *display)) MyX11GetProcAddress("XPending");
++    if (!pfn_XPending) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing libX11 symbol");}
++
++    // X11GETPROC_(XSetErrorHandler);
++    pfn_XSetErrorHandler = (int (* (*)(int (*handler)(Display *, XErrorEvent *)))(Display *, XErrorEvent *)) MyX11GetProcAddress("XSetErrorHandler");
++    if (!pfn_XSetErrorHandler) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing libX11 symbol");}
++
++    // X11GETPROC_(XSync);
++    pfn_XSync = (int (*)(Display *display, Bool discard)) MyX11GetProcAddress("XSync");
++    if (!pfn_XSync) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing libX11 symbol");}
++
++    // X11GETPROC_(XScreenNumberOfScreen);
++    pfn_XScreenNumberOfScreen = (int (*)(Screen *screen)) MyX11GetProcAddress("XScreenNumberOfScreen");
++    if (!pfn_XScreenNumberOfScreen) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing libX11 symbol");}
++
++    // X11GETPROC_(XMapWindow);
++    pfn_XMapWindow = (int (*)(Display *display, Window w)) MyX11GetProcAddress("XMapWindow");
++    if (!pfn_XMapWindow) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing libX11 symbol");}
++
++    // X11GETPROC_(XGetWindowAttributes);
++    pfn_XGetWindowAttributes = (Status (*)(Display *display, Window w, XWindowAttributes *window_attributes_return)) MyX11GetProcAddress("XGetWindowAttributes");
++    if (!pfn_XGetWindowAttributes) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing libX11 symbol");}
++
++    // GLGETPROC_(glXGetFBConfigAttrib, "");
++    pfn_glXGetFBConfigAttrib = (int (*)(Display * dpy, GLXFBConfig config, int attribute, int * value)) OGLGETPROCADDRESS("glXGetFBConfigAttrib");
++    if (!pfn_glXGetFBConfigAttrib) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glXGetVisualFromFBConfig, "");
++    pfn_glXGetVisualFromFBConfig = (XVisualInfo * (*)(Display * dpy, GLXFBConfig config)) OGLGETPROCADDRESS("glXGetVisualFromFBConfig");
++    if (!pfn_glXGetVisualFromFBConfig) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glXQueryVersion, "");
++    pfn_glXQueryVersion = (Bool (*)(Display * dpy,  int * major,  int * minor)) OGLGETPROCADDRESS("glXQueryVersion");
++    if (!pfn_glXQueryVersion) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glXChooseFBConfig, "");
++    pfn_glXChooseFBConfig = (GLXFBConfig * (*)(Display * dpy, int screen, const int * attrib_list, int * nelements)) OGLGETPROCADDRESS("glXChooseFBConfig");
++    if (!pfn_glXChooseFBConfig) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glXChooseVisual, "");
++    pfn_glXChooseVisual = (XVisualInfo* (*)(Display * dpy,  int screen,  int * attribList)) OGLGETPROCADDRESS("glXChooseVisual");
++    if (!pfn_glXChooseVisual) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glXCreateContext, "");
++    pfn_glXCreateContext = (GLXContext (*)(Display * dpy,  XVisualInfo * vis,  GLXContext shareList,  Bool direct)) OGLGETPROCADDRESS("glXCreateContext");
++    if (!pfn_glXCreateContext) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glXCreateContext, "");
++    pfn_glXCreateContext = (GLXContext (*)(Display * dpy,  XVisualInfo * vis,  GLXContext shareList,  Bool direct)) OGLGETPROCADDRESS("glXCreateContext");
++    if (!pfn_glXCreateContext) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glXCreatePixmap, "");
++    pfn_glXCreatePixmap = (GLXPixmap (*)(Display * dpy, GLXFBConfig config, Pixmap pixmap, const int * attrib_list)) OGLGETPROCADDRESS("glXCreatePixmap");
++    if (!pfn_glXCreatePixmap) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glXMakeCurrent, "");
++    pfn_glXMakeCurrent = (Bool (*)(Display * dpy,  GLXDrawable drawable,  GLXContext ctx)) OGLGETPROCADDRESS("glXMakeCurrent");
++    if (!pfn_glXMakeCurrent) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glXDestroyContext, "");
++    pfn_glXDestroyContext = (void (*)(Display * dpy,  GLXContext ctx)) OGLGETPROCADDRESS("glXDestroyContext");
++    if (!pfn_glXDestroyContext) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glXDestroyPixmap, "");
++    pfn_glXDestroyPixmap = (void (*)(Display * dpy, GLXPixmap Pixmap)) OGLGETPROCADDRESS("glXDestroyPixmap");
++    if (!pfn_glXDestroyPixmap) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
+ #endif
++/*
+     GLGETPROC_(glAlphaFunc, "");
+     GLGETPROC_(glBegin, "");
+     GLGETPROC_(glBindTexture, "");
+@@ -396,6 +515,287 @@
+     GLGETPROC_(glVertex2i, "");
+     GLGETPROC_(glVertexPointer, "");
+     GLGETPROC_(glViewport, "");
++*/
++    // GLGETPROC_(glAlphaFunc, "");
++    pfn_glAlphaFunc = (void (GLAPIENTRYP)(GLenum func, GLclampf ref)) OGLGETPROCADDRESS("glAlphaFunc");
++    if (!pfn_glAlphaFunc) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glBegin, "");
++    pfn_glBegin = (void (GLAPIENTRYP)(GLenum mode)) OGLGETPROCADDRESS("glBegin");
++    if (!pfn_glBegin) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glBindTexture, "");
++    pfn_glBindTexture = (void (GLAPIENTRYP)(GLenum target, GLuint texture)) OGLGETPROCADDRESS("glBindTexture");
++    if (!pfn_glBindTexture) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glBlendFunc, "");
++    pfn_glBlendFunc = (void (GLAPIENTRYP)(GLenum sfactor, GLenum dfactor)) OGLGETPROCADDRESS("glBlendFunc");
++    if (!pfn_glBlendFunc) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glClear, "");
++    pfn_glClear = (void (GLAPIENTRYP)(GLbitfield mask)) OGLGETPROCADDRESS("glClear");
++    if (!pfn_glClear) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glClearColor, "");
++    pfn_glClearColor = (void (GLAPIENTRYP)(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)) OGLGETPROCADDRESS("glClearColor");
++    if (!pfn_glClearColor) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glClearDepth, "");
++    pfn_glClearDepth = (void (GLAPIENTRYP)(GLclampd depth)) OGLGETPROCADDRESS("glClearDepth");
++    if (!pfn_glClearDepth) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glClearStencil, "");
++    pfn_glClearStencil = (void (GLAPIENTRYP)(GLint s)) OGLGETPROCADDRESS("glClearStencil");
++    if (!pfn_glClearStencil) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glClipPlane, "");
++    pfn_glClipPlane = (void (GLAPIENTRYP)(GLenum plane, const GLdouble *equation)) OGLGETPROCADDRESS("glClipPlane");
++    if (!pfn_glClipPlane) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glColorMask, "");
++    pfn_glColorMask = (void (GLAPIENTRYP)(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)) OGLGETPROCADDRESS("glColorMask");
++    if (!pfn_glColorMask) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glColorPointer, "");
++    pfn_glColorPointer = (void (GLAPIENTRYP)(GLint size, GLenum type, GLsizei stride, const void *pointer)) OGLGETPROCADDRESS("glColorPointer");
++    if (!pfn_glColorPointer) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glCullFace, "");
++    pfn_glCullFace = (void (GLAPIENTRYP)(GLenum mode)) OGLGETPROCADDRESS("glCullFace");
++    if (!pfn_glCullFace) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glDeleteTextures, "");
++    pfn_glDeleteTextures = (void (GLAPIENTRYP)(GLsizei n, const GLuint *textures)) OGLGETPROCADDRESS("glDeleteTextures");
++    if (!pfn_glDeleteTextures) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glDepthFunc, "");
++    pfn_glDepthFunc = (void (GLAPIENTRYP)(GLenum func)) OGLGETPROCADDRESS("glDepthFunc");
++    if (!pfn_glDepthFunc) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glDepthMask, "");
++    pfn_glDepthMask = (void (GLAPIENTRYP)(GLboolean flag)) OGLGETPROCADDRESS("glDepthMask");
++    if (!pfn_glDepthMask) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glDepthRange, "");
++    pfn_glDepthRange = (void (GLAPIENTRYP)(GLclampd zNear, GLclampd zFar)) OGLGETPROCADDRESS("glDepthRange");
++    if (!pfn_glDepthRange) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glDisable, "");
++    pfn_glDisable = (void (GLAPIENTRYP)(GLenum cap)) OGLGETPROCADDRESS("glDisable");
++    if (!pfn_glDisable) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glDisableClientState, "");
++    pfn_glDisableClientState = (void (GLAPIENTRYP)(GLenum array)) OGLGETPROCADDRESS("glDisableClientState");
++    if (!pfn_glDisableClientState) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glDrawArrays, "");
++    pfn_glDrawArrays = (void (GLAPIENTRYP)(GLenum mode, GLint first, GLsizei count)) OGLGETPROCADDRESS("glDrawArrays");
++    if (!pfn_glDrawArrays) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glDrawElements, "");
++    pfn_glDrawElements = (void (GLAPIENTRYP)(GLenum mode, GLsizei count, GLenum type, const void *indices)) OGLGETPROCADDRESS("glDrawElements");
++    if (!pfn_glDrawElements) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glEnable, "");
++    pfn_glEnable = (void (GLAPIENTRYP)(GLenum cap)) OGLGETPROCADDRESS("glEnable");
++    if (!pfn_glEnable) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glEnableClientState, "");
++    pfn_glEnableClientState = (void (GLAPIENTRYP)(GLenum array)) OGLGETPROCADDRESS("glEnableClientState");
++    if (!pfn_glEnableClientState) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glEnd, "");
++    pfn_glEnd = (void (GLAPIENTRYP)(void)) OGLGETPROCADDRESS("glEnd");
++    if (!pfn_glEnd) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glFinish, "");
++    pfn_glFinish = (void (GLAPIENTRYP)(void)) OGLGETPROCADDRESS("glFinish");
++    if (!pfn_glFinish) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glFlush, "");
++    pfn_glFlush = (void (GLAPIENTRYP)(void)) OGLGETPROCADDRESS("glFlush");
++    if (!pfn_glFlush) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glFogf, "");
++    pfn_glFogf = (void (GLAPIENTRYP)(GLenum pname, GLfloat param)) OGLGETPROCADDRESS("glFogf");
++    if (!pfn_glFogf) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glFogfv, "");
++    pfn_glFogfv = (void (GLAPIENTRYP)(GLenum pname, const GLfloat *params)) OGLGETPROCADDRESS("glFogfv");
++    if (!pfn_glFogfv) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glFogi, "");
++    pfn_glFogi = (void (GLAPIENTRYP)(GLenum pname, GLint param)) OGLGETPROCADDRESS("glFogi");
++    if (!pfn_glFogi) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glFrontFace, "");
++    pfn_glFrontFace = (void (GLAPIENTRYP)(GLenum mode)) OGLGETPROCADDRESS("glFrontFacei");
++    if (!pfn_glFrontFace) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glGenTextures, "");
++    pfn_glGenTextures = (void (GLAPIENTRYP)(GLsizei n, GLuint *textures)) OGLGETPROCADDRESS("glGenTextures");
++    if (!pfn_glGenTextures) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glGetBooleanv, "");
++    pfn_glGetBooleanv = (void (GLAPIENTRYP)(GLenum pname, GLboolean *params)) OGLGETPROCADDRESS("glGetBooleanv");
++    if (!pfn_glGetBooleanv) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glGetError, "");
++    pfn_glGetError = (GLenum (GLAPIENTRYP)(void)) OGLGETPROCADDRESS("glGetError");
++    if (!pfn_glGetError) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glGetFloatv, "");
++    pfn_glGetFloatv = (void (GLAPIENTRYP)(GLenum pname, GLfloat *params)) OGLGETPROCADDRESS("glGetFloatv");
++    if (!pfn_glGetFloatv) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glGetIntegerv, "");
++    pfn_glGetIntegerv = (void (GLAPIENTRYP)(GLenum pname, GLint *params)) OGLGETPROCADDRESS("glGetIntegerv");
++    if (!pfn_glGetIntegerv) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glGetString, "");
++    pfn_glGetString = (const GLubyte * (GLAPIENTRYP)(GLenum name)) OGLGETPROCADDRESS("glGetString");
++    if (!pfn_glGetString) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glGetTexImage, "");
++    pfn_glGetTexImage = (void (GLAPIENTRYP)(GLenum target, GLint level, GLenum format, GLenum type, void *pixels)) OGLGETPROCADDRESS("glGetTexImage");
++    if (!pfn_glGetTexImage) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glLightModelfv, "");
++    pfn_glLightModelfv = (void (GLAPIENTRYP)(GLenum pname, const GLfloat *params)) OGLGETPROCADDRESS("glLightModelfv");
++    if (!pfn_glLightModelfv) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glLightf, "");
++    pfn_glLightf = (void (GLAPIENTRYP)(GLenum light, GLenum pname, GLfloat param)) OGLGETPROCADDRESS("glLightf");
++    if (!pfn_glLightf) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glLightfv, "");
++    pfn_glLightfv = (void (GLAPIENTRYP)(GLenum light, GLenum pname, const GLfloat *params)) OGLGETPROCADDRESS("glLightfv");
++    if (!pfn_glLightfv) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glLineWidth, "");
++    pfn_glLineWidth = (void (GLAPIENTRYP)(GLfloat width)) OGLGETPROCADDRESS("glLineWidth");
++    if (!pfn_glLineWidth) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glLoadIdentity, "");
++    pfn_glLoadIdentity = (void (GLAPIENTRYP)(void)) OGLGETPROCADDRESS("glLoadIdentity");
++    if (!pfn_glLoadIdentity) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glLoadMatrixf, "");
++    pfn_glLoadMatrixf = (void (GLAPIENTRYP)(const GLfloat *m)) OGLGETPROCADDRESS("glLoadMatrixf");
++    if (!pfn_glLoadMatrixf) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glMaterialfv, "");
++    pfn_glMaterialfv = (void (GLAPIENTRYP)(GLenum face, GLenum pname, const GLfloat *params)) OGLGETPROCADDRESS("glMaterialfv");
++    if (!pfn_glMaterialfv) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glMatrixMode, "");
++    pfn_glMatrixMode = (void (GLAPIENTRYP)(GLenum mode)) OGLGETPROCADDRESS("glMatrixMode");
++    if (!pfn_glMatrixMode) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glMultMatrixf, "");
++    pfn_glMultMatrixf = (void (GLAPIENTRYP)(const GLfloat *m)) OGLGETPROCADDRESS("glMultMatrixf");
++    if (!pfn_glMultMatrixf) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glNormalPointer, "");
++    pfn_glNormalPointer = (void (GLAPIENTRYP)(GLenum type, GLsizei stride, const void *pointer)) OGLGETPROCADDRESS("glNormalPointer");
++    if (!pfn_glNormalPointer) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glOrtho, "");
++    pfn_glOrtho = (void (GLAPIENTRYP)(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble nearVal, GLdouble farVal)) OGLGETPROCADDRESS("glOrtho");
++    if (!pfn_glOrtho) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glPixelStorei, "");
++    pfn_glPixelStorei = (void (GLAPIENTRYP)(GLenum pname, GLint param)) OGLGETPROCADDRESS("glPixelStorei");
++    if (!pfn_glPixelStorei) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glPointSize, "");
++    pfn_glPointSize = (void (GLAPIENTRYP)(GLfloat size)) OGLGETPROCADDRESS("glPointSize");
++    if (!pfn_glPointSize) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glPolygonMode, "");
++    pfn_glPolygonMode = (void (GLAPIENTRYP)(GLenum face, GLenum mode)) OGLGETPROCADDRESS("glPolygonMode");
++    if (!pfn_glPolygonMode) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glPolygonOffset, "");
++    pfn_glPolygonOffset = (void (GLAPIENTRYP)(GLfloat factor, GLfloat units)) OGLGETPROCADDRESS("glPolygonOffset");
++    if (!pfn_glPolygonOffset) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glPopAttrib, "");
++    pfn_glPopAttrib = (void (GLAPIENTRYP)(void)) OGLGETPROCADDRESS("glPopAttrib");
++    if (!pfn_glPopAttrib) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glPopMatrix, "");
++    pfn_glPopMatrix = (void (GLAPIENTRYP)(void)) OGLGETPROCADDRESS("glPopMatrix");
++    if (!pfn_glPopMatrix) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glPushAttrib, "");
++    pfn_glPushAttrib = (void (GLAPIENTRYP)(GLbitfield mask)) OGLGETPROCADDRESS("glPushAttrib");
++    if (!pfn_glPushAttrib) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glPushMatrix, "");
++    pfn_glPushMatrix = (void (GLAPIENTRYP)(void)) OGLGETPROCADDRESS("glPushMatrix");
++    if (!pfn_glPushMatrix) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glScissor, "");
++    pfn_glScissor = (void (GLAPIENTRYP)(GLint x, GLint y, GLsizei width, GLsizei height)) OGLGETPROCADDRESS("glScissor");
++    if (!pfn_glScissor) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glShadeModel, "");
++    pfn_glShadeModel = (void (GLAPIENTRYP)(GLenum mode)) OGLGETPROCADDRESS("glShadeModel");
++    if (!pfn_glShadeModel) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glStencilFunc, "");
++    pfn_glStencilFunc = (void (GLAPIENTRYP)(GLenum func, GLint ref, GLuint mask)) OGLGETPROCADDRESS("glStencilFunc");
++    if (!pfn_glStencilFunc) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glStencilMask, "");
++    pfn_glStencilMask = (void (GLAPIENTRYP)(GLuint mask)) OGLGETPROCADDRESS("glStencilMask");
++    if (!pfn_glStencilMask) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glStencilOp, "");
++    pfn_glStencilOp = (void (GLAPIENTRYP)(GLenum fail, GLenum zfail, GLenum zpass)) OGLGETPROCADDRESS("glStencilOp");
++    if (!pfn_glStencilOp) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glTexCoord2f, "");
++    pfn_glTexCoord2f = (void (GLAPIENTRYP)(GLfloat s, GLfloat t)) OGLGETPROCADDRESS("glTexCoord2f");
++    if (!pfn_glTexCoord2f) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glTexCoordPointer, "");
++    pfn_glTexCoordPointer = (void (GLAPIENTRYP)(GLint size, GLenum type, GLsizei stride, const void *pointer)) OGLGETPROCADDRESS("glTexCoordPointer");
++    if (!pfn_glTexCoordPointer) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glTexImage2D, "");
++    pfn_glTexImage2D = (void (GLAPIENTRYP)(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels)) OGLGETPROCADDRESS("glTexImage2D");
++    if (!pfn_glTexImage2D) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glTexParameterf, "");
++    pfn_glTexParameterf = (void (GLAPIENTRYP)(GLenum target, GLenum pname, GLfloat param)) OGLGETPROCADDRESS("glTexParameterf");
++    if (!pfn_glTexParameterf) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glTexParameterfv, "");
++    pfn_glTexParameterfv = (void (GLAPIENTRYP)(GLenum target, GLenum pname, const GLfloat *params)) OGLGETPROCADDRESS("glTexParameterfv");
++    if (!pfn_glTexParameterfv) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glTexParameteri, "");
++    pfn_glTexParameteri = (void (GLAPIENTRYP)(GLenum target, GLenum pname, GLint param)) OGLGETPROCADDRESS("glTexParameteri");
++    if (!pfn_glTexParameteri) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glTexSubImage2D, "");
++    pfn_glTexSubImage2D = (void (GLAPIENTRYP)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels)) OGLGETPROCADDRESS("glTexSubImage2D");
++    if (!pfn_glTexSubImage2D) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glVertex2i, "");
++    pfn_glVertex2i = (void (GLAPIENTRYP)(GLint x, GLint y)) OGLGETPROCADDRESS("glVertex2i");
++    if (!pfn_glVertex2i) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glVertexPointer, "");
++    pfn_glVertexPointer = (void (GLAPIENTRYP)(GLint size, GLenum type, GLsizei stride, const void *pointer)) OGLGETPROCADDRESS("glVertexPointer");
++    if (!pfn_glVertexPointer) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glViewport, "");
++    pfn_glViewport = (void (GLAPIENTRYP)(GLint x, GLint y, GLsizei width, GLsizei height)) OGLGETPROCADDRESS("glViewport");
++    if (!pfn_glViewport) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
+ 
+ #ifdef RT_OS_LINUX
+     XInitThreads();
+@@ -410,9 +810,23 @@
+ 
+ int glLdrGetExtFunctions(PPDMDEVINS pDevIns)
+ {
++    /*
+     PFNRT pfnRet;
+     GLGETPROC_(glBlendColor, "");
+     GLGETPROC_(glBlendEquation, "");
+     GLGETPROC_(glClientActiveTexture, "");
++    */
++
++    // GLGETPROC_(glBlendColor, "");
++    pfn_glBlendColor = (void (GLAPIENTRYP)(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)) OGLGETPROCADDRESS("glBlendColor");
++    if (!pfn_glBlendColor) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glBlendEquation, "");
++    pfn_glBlendEquation = (void (GLAPIENTRYP)(GLenum mode)) OGLGETPROCADDRESS("glBlendEquation");
++    if (!pfn_glBlendEquation) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
++
++    // GLGETPROC_(glClientActiveTexture, "");
++    pfn_glClientActiveTexture = (void (GLAPIENTRYP)(GLenum texture)) OGLGETPROCADDRESS("glClientActiveTexture");
++    if (!pfn_glClientActiveTexture) { PDMDevHlpVMSetError(pDevIns, VERR_VGA_GL_SYMBOL_NOT_FOUND, RT_SRC_POS, "Missing OpenGL symbol");}
+     return VINF_SUCCESS;
+ }

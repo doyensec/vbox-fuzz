@@ -1,0 +1,13 @@
+--- VirtualBox-6.1.26-orig/src/VBox/Additions/x11/undefined_xfree86	2021-08-09 15:08:11.581807193 +0200
++++ VirtualBox-6.1.26/src/VBox/Additions/x11/undefined_xfree86	2021-08-09 15:11:07.681635712 +0200
+@@ -1,6 +1,10 @@
+ # This file contains the complete list, excluding modules of undefined symbols
+ # which are allowed in XFree86 4.3 binary driver modules.
+ 
++__stop___sancov_guards
++__sanitizer_cov_trace_pc_guard_init
++__afl_area_ptr
++__start___sancov_guards
+ AddCallback
+ AddEnabledDevice
+ AddExtension

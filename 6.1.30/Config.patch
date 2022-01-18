@@ -1,0 +1,135 @@
+--- VirtualBox-6.1.30-orig/Config.kmk	2021-11-22 16:08:54.000000000 +0100
++++ VirtualBox-6.1.30/Config.kmk	2022-01-14 13:08:27.577267573 +0100
+@@ -5,7 +5,7 @@
+ # This file gets included by all makefiles through the
+ # include $(KBUILD_PATH)/header.kmk statement.
+ #
+-
++KBUILD_VERBOSE=4
+ #
+ # Copyright (C) 2006-2020 Oracle Corporation
+ #
+@@ -1596,12 +1596,12 @@
+    TOOL_GXX3PLAIN_LD_SYSMOD ?= /usr/ccs/bin/ld
+   endif
+  else
+-  VBOX_GCC_TOOL := GXX3
++  VBOX_GCC_TOOL := AFL
+   ifeq ($(KBUILD_TARGET_ARCH).$(KBUILD_HOST_ARCH),x86.amd64) ## @todo mixing target/host here!
+-   VBOX_GCC_TOOL := GXX32
++   VBOX_GCC_TOOL := AFL
+    VBOX_WITH_VBOXDRV=
+   else ifeq ($(KBUILD_TARGET_ARCH).$(KBUILD_HOST_ARCH),amd64.x86)
+-   VBOX_GCC_TOOL := GXX64
++   VBOX_GCC_TOOL := AFL
+    VBOX_WITH_VBOXDRV=
+   endif
+  endif
+@@ -1644,7 +1644,7 @@
+ # Default too nonsense.
+ #
+ ## @todo Remove the default tool crap here!
+-TOOL = $(VBOX_GCC_TOOL)
++TOOL = AFL
+ TOOL.win.x86 = $(VBOX_VCC_TOOL_STEM)X86
+ TOOL.win.amd64 = $(VBOX_VCC_TOOL_STEM)AMD64
+ ASTOOL = $(VBOX_ASTOOL)
+@@ -4497,7 +4497,7 @@
+ endif # pe
+ 
+ ifeq ($(VBOX_LDR_FMT),elf)
+-TEMPLATE_VBoxR0_TOOL                = $(VBOX_GCC_TOOL)
++TEMPLATE_VBoxR0_TOOL                = GXX64 # Super important, otherwise you can't load R0 modules
+ TEMPLATE_VBoxR0_CFLAGS              = -fno-pie -nostdinc -g $(VBOX_GCC_pipe) $(VBOX_GCC_WERR) $(VBOX_GCC_PEDANTIC_C) \
+ 	$(VBOX_GCC_Wno-variadic-macros) $(VBOX_GCC_R0_OPT) $(VBOX_GCC_R0_FP) -fno-strict-aliasing -fno-exceptions \
+ 	$(VBOX_GCC_fno-stack-protector) -fno-common $(VBOX_GCC_fvisibility-hidden) -std=gnu99 $(VBOX_GCC_IPRT_FMT_CHECK)
+@@ -5187,7 +5187,7 @@
+  endif
+ 
+ else # the gcc guys
+-TEMPLATE_VBOXR3EXE_TOOL                = $(VBOX_GCC_TOOL)
++TEMPLATE_VBOXR3EXE_TOOL                = AFL
+  if $(VBOX_GCC_VERSION_CC) < 30400
+ TEMPLATE_VBOXR3EXE_DEFS               += RT_WITHOUT_PRAGMA_ONCE
+  endif
+@@ -5503,7 +5503,7 @@
+  TEMPLATE_VBoxR3StaticNonPedantic_CXXFLAGS = $(TEMPLATE_VBoxR3Static_CXXFLAGS) $(VBOX_VCC_NON_PEDANTIC)
+  TEMPLATE_VBoxR3StaticNonPedantic_PCHFLAGS = $(TEMPLATE_VBoxR3Static_PCHFLAGS) $(VBOX_VCC_NON_PEDANTIC)
+ else # gcc:
+- TEMPLATE_VBoxR3StaticNonPedantic_TOOL     = $(VBOX_GCC_TOOL)
++ TEMPLATE_VBoxR3StaticNonPedantic_TOOL     = AFL
+  TEMPLATE_VBoxR3StaticNonPedantic_CFLAGS   = $(filter-out $(VBOX_GCC_WERR) $(VBOX_GCC_WARN_MASOCHISTIC) $(VBOX_GCC_PEDANTIC_C)  ,$(TEMPLATE_VBoxR3Static_CFLAGS)) \
+  	$(VBOX_GCC_NON_PEDANTIC_CXX)
+  TEMPLATE_VBoxR3StaticNonPedantic_CXXFLAGS = $(filter-out $(VBOX_GCC_WERR) $(VBOX_GCC_WARN_MASOCHISTIC) $(VBOX_GCC_PEDANTIC_CXX),$(TEMPLATE_VBoxR3Static_CXXFLAGS)) \
+@@ -5747,7 +5747,7 @@
+ TEMPLATE_VBOXR3TSTNPEXE  = VBox Ring 3 Testcase Exe Non-pedantic
+ TEMPLATE_VBOXR3TSTNPEXE_EXTENDS = VBOXR3TSTEXE
+ ifneq ($(KBUILD_TARGET),win) # (only gcc)
+- TEMPLATE_VBOXR3TSTNPEXE_TOOL             = $(VBOX_GCC_TOOL)
++ TEMPLATE_VBOXR3TSTNPEXE_TOOL             = AFL
+  TEMPLATE_VBOXR3TSTNPEXE_CFLAGS           = $(filter-out $(VBOX_GCC_WERR) $(VBOX_GCC_WARN_MASOCHISTIC) $(VBOX_GCC_PEDANTIC_C)  ,$(TEMPLATE_VBOXR3TSTEXE_CFLAGS)) \
+  	-Wno-sign-compare
+  TEMPLATE_VBOXR3TSTNPEXE_CXXFLAGS         = $(filter-out $(VBOX_GCC_WERR) $(VBOX_GCC_WARN_MASOCHISTIC) $(VBOX_GCC_PEDANTIC_CXX),$(TEMPLATE_VBOXR3TSTEXE_CXXFLAGS)) \
+@@ -5788,7 +5788,7 @@
+ TEMPLATE_VBOXR3NPEXE                     = VBox Ring 3 Non-pedantic
+ TEMPLATE_VBOXR3NPEXE_EXTENDS             = VBOXR3EXE
+ ifneq ($(KBUILD_TARGET),win) # (only gcc)
+- TEMPLATE_VBOXR3NPEXE_TOOL               = $(VBOX_GCC_TOOL)
++ TEMPLATE_VBOXR3NPEXE_TOOL               = AFL
+  TEMPLATE_VBOXR3NPEXE_CFLAGS             = $(filter-out $(VBOX_GCC_WERR) $(VBOX_GCC_WARN_MASOCHISTIC) $(VBOX_GCC_PEDANTIC_C)  ,$(TEMPLATE_VBOXR3EXE_CFLAGS)) \
+  	$(VBOX_GCC_NON_PEDANTIC_C)
+  TEMPLATE_VBOXR3NPEXE_CXXFLAGS           = $(filter-out $(VBOX_GCC_WERR) $(VBOX_GCC_WARN_MASOCHISTIC) $(VBOX_GCC_PEDANTIC_CXX),$(TEMPLATE_VBOXR3EXE_CXXFLAGS)) \
+@@ -5807,7 +5807,7 @@
+ TEMPLATE_VBOXR3NP = VBox Ring 3 Non-pedantic
+ TEMPLATE_VBOXR3NP_EXTENDS = VBOXR3
+ ifneq ($(KBUILD_TARGET),win) # (only gcc)
+- TEMPLATE_VBOXR3NP_TOOL                  = $(VBOX_GCC_TOOL)
++ TEMPLATE_VBOXR3NP_TOOL                  = AFL
+  TEMPLATE_VBOXR3NP_CFLAGS                = $(filter-out $(VBOX_GCC_WERR) $(VBOX_GCC_WARN_MASOCHISTIC) $(VBOX_GCC_PEDANTIC_C)  ,$(TEMPLATE_VBOXR3_CFLAGS)) \
+ 	$(VBOX_GCC_NON_PEDANTIC_C)
+  TEMPLATE_VBOXR3NP_CXXFLAGS              = $(filter-out $(VBOX_GCC_WERR) $(VBOX_GCC_WARN_MASOCHISTIC) $(VBOX_GCC_PEDANTIC_CXX),$(TEMPLATE_VBOXR3_CXXFLAGS)) \
+@@ -5830,7 +5830,7 @@
+  TEMPLATE_VBoxR3DllNonPedantic_CXXFLAGS     = $(TEMPLATE_VBOXR3_CXXFLAGS) $(VBOX_VCC_NON_PEDANTIC)
+  TEMPLATE_VBoxR3DllNonPedantic_PCHFLAGS     = $(TEMPLATE_VBOXR3_PCHFLAGS) $(VBOX_VCC_NON_PEDANTIC)
+ else # gcc:
+- TEMPLATE_VBoxR3DllNonPedantic_TOOL         = $(VBOX_GCC_TOOL)
++ TEMPLATE_VBoxR3DllNonPedantic_TOOL         = AFL
+  TEMPLATE_VBoxR3DllNonPedantic_CFLAGS       = $(filter-out $(VBOX_GCC_WERR) $(VBOX_GCC_WARN_MASOCHISTIC) $(VBOX_GCC_PEDANTIC_C)  ,$(TEMPLATE_VBOXR3_CFLAGS)) \
+ 	$(VBOX_GCC_NON_PEDANTIC_C)
+  TEMPLATE_VBoxR3DllNonPedantic_CXXFLAGS     = $(filter-out $(VBOX_GCC_WERR) $(VBOX_GCC_WARN_MASOCHISTIC) $(VBOX_GCC_PEDANTIC_CXX),$(TEMPLATE_VBOXR3_CXXFLAGS)) \
+@@ -5969,7 +5969,7 @@
+ else
+  # Use the default GCC.
+  # The use of --exclude-libs ALL is to avoid confusing the linux ld.so.
+- TEMPLATE_VBoxNoCrtGccLib_TOOL             = $(VBOX_GCC_TOOL)
++ TEMPLATE_VBoxNoCrtGccLib_TOOL             = AFL
+  if $(VBOX_GCC_VERSION_CC) < 30400
+   TEMPLATE_VBoxNoCrtGccLib_DEFS           += RT_WITHOUT_PRAGMA_ONCE
+  endif
+@@ -6091,7 +6091,7 @@
+ 
+ else # the GCC guys:
+ 
+-TEMPLATE_VBOXMAINEXE_TOOL                = $(VBOX_GCC_TOOL)
++TEMPLATE_VBOXMAINEXE_TOOL                = AFL
+  if $(VBOX_GCC_VERSION_CC) < 30400
+   TEMPLATE_VBOXMAINEXE_DEFS             += RT_WITHOUT_PRAGMA_ONCE
+  endif
+@@ -6679,7 +6679,7 @@
+   TEMPLATE_VBOXQTGUIEXE_POST_CMDS = $(VBOX_SIGN_IMAGE_CMDS)
+ 
+  else # the gcc guys:
+-  TEMPLATE_VBOXQTGUIEXE_TOOL = $(VBOX_GCC_TOOL)
++  TEMPLATE_VBOXQTGUIEXE_TOOL = AFL
+   if $(VBOX_GCC_VERSION_CC) < 30400
+    TEMPLATE_VBOXQTGUIEXE_DEFS += RT_WITHOUT_PRAGMA_ONCE
+   endif
+@@ -6921,7 +6921,7 @@
+ 
+ else
+ # (gcc of some kind )
+-TEMPLATE_VBoxBldProg_TOOL                = GXX3
++TEMPLATE_VBoxBldProg_TOOL                = AFL
+  if $(VBOX_GCC_VERSION_CC) < 30400
+ TEMPLATE_VBoxBldProg_DEFS               += RT_WITHOUT_PRAGMA_ONCE
+  endif
